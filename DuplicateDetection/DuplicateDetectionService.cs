@@ -8,24 +8,25 @@ namespace DuplicateDetection
     public class DuplicateDetectionService : IDuplicateDetectionService
     {
         private readonly IFileCrawler fileCrawler;
-        public DuplicateDetectionService(IFileCrawler fileCrawler)
+        private readonly IFileHashService fileHashService;
+
+        public DuplicateDetectionService(IFileCrawler fileCrawler, IFileHashService fileHashService)
         {
             this.fileCrawler = fileCrawler;
+            this.fileHashService = fileHashService;
         }
 
         public IEnumerable<IDuplicateFile> CollectCandidates(string path)
-            => this.CollectCandidates(path, ComparisonMode.SizeAndName);
+            => CollectCandidates(path, ComparisonMode.SizeAndName);
 
         public IEnumerable<IDuplicateFile> CollectCandidates(string path, ComparisonMode mode)
         {
             var result = new HashSet<IDuplicateFile>(new DuplicateFileComparer());
-            var files = this.fileCrawler.CrawlFiles(path).ToList();
-
-            
+            var files = fileCrawler.CrawlFiles(path).ToList();
 
             foreach (var file in files)
             {
-                var duplicates = files.Where(x => this.CompareFiles(x, file, mode));
+                var duplicates = files.Where(x => SimpleCompare(x, file, mode));
                 if (duplicates.Count() > 1)
                 {
                     result.Add(new DuplicateFile
@@ -38,15 +39,39 @@ namespace DuplicateDetection
             return result;
         }
 
-        private bool CompareFiles(File left, File right, ComparisonMode mode)
+        private bool SimpleCompare(File left, File right, ComparisonMode mode)
             => mode == ComparisonMode.SizeAndName
                 ? left.Name == right.Name && left.Size == right.Size
-                : left.Size == right.Size;        
+                : left.Size == right.Size;
 
         public IEnumerable<IDuplicateFile> VerifyCandiates(IEnumerable<IDuplicateFile> candidates)
         {
-            throw new NotImplementedException();
-        }        
+            var result = new HashSet<IDuplicateFile>(new DuplicateFileComparer());
+
+            foreach (var candidate in candidates)
+            {
+                foreach (var filePath in candidate.FilePaths)
+                {
+                    var duplicatePaths = candidate.FilePaths.Where(x => HashCompare(x, filePath));
+                    if (duplicatePaths.Count() > 1)
+                    {
+                        result.Add(new DuplicateFile
+                        {
+                            FilePaths = duplicatePaths
+                        });
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private bool HashCompare(string left, string right)
+        {
+            var leftHash = fileHashService.CalculateHash(left);
+            var rightHash = fileHashService.CalculateHash(right);
+            return leftHash.SequenceEqual(rightHash);
+        }
 
         private class DuplicateFileComparer : IEqualityComparer<IDuplicateFile>
         {

@@ -9,9 +9,9 @@
 
         public File(string name, long size, string path)
         {
-            this.Name = name;
-            this.Size = size;
-            this.Path = path;
+            Name = name;
+            Size = size;
+            Path = path;
         }
     }
 }

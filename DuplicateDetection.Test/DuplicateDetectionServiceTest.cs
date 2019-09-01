@@ -9,14 +9,16 @@ namespace DuplicateDetection.Test
 {
     public class DuplicateDetectionServiceTest
     {
-        private readonly IFileCrawler fileCrawler = Substitute.For<IFileCrawler>();
         private readonly IDuplicateDetectionService service;
+        private readonly IFileCrawler fileCrawler = Substitute.For<IFileCrawler>();
+        private readonly IFileHashService fileHashService = Substitute.For<IFileHashService>();
 
         public DuplicateDetectionServiceTest()
         {
-            this.service = new DuplicateDetectionService(fileCrawler);
+            service = new DuplicateDetectionService(fileCrawler, fileHashService);
         }
 
+        #region CollectCandiates
         [Fact]
         public void ShouldDetectDuplicatesWithSameNameAndSizeInDefaultMode()
         {
@@ -25,8 +27,10 @@ namespace DuplicateDetection.Test
                 .WithSameSize()
                 .Build(fileCrawler);
 
-            var duplicates = this.service.CollectCandidates("path");
+            var duplicates = service.CollectCandidates("path");
             duplicates.Count().ShouldBe(1);
+
+            //todo: check for file paths
         }
 
         [Fact]
@@ -37,7 +41,7 @@ namespace DuplicateDetection.Test
                 .WithSameSize()
                 .Build(fileCrawler);
 
-            var duplicates = this.service.CollectCandidates("path");
+            var duplicates = service.CollectCandidates("path");
             duplicates.ShouldBeEmpty();
         }
 
@@ -48,7 +52,7 @@ namespace DuplicateDetection.Test
                 .WithSameName()
                 .WithDifferentSizes()
                 .Build(fileCrawler);
-            var duplicates = this.service.CollectCandidates("path");
+            var duplicates = service.CollectCandidates("path");
             duplicates.ShouldBeEmpty();
         }
 
@@ -60,7 +64,7 @@ namespace DuplicateDetection.Test
                 .WithSameSize()
                 .Build(fileCrawler);
 
-            var duplicates = this.service.CollectCandidates("path", ComparisonMode.Size);
+            var duplicates = service.CollectCandidates("path", ComparisonMode.Size);
             duplicates.Count().ShouldBe(1);
         }
 
@@ -72,7 +76,7 @@ namespace DuplicateDetection.Test
                 .WithSameSize()
                 .Build(fileCrawler);
             
-            var duplicates = this.service.CollectCandidates("path", ComparisonMode.Size);
+            var duplicates = service.CollectCandidates("path", ComparisonMode.Size);
             duplicates.Count().ShouldBe(1);
         }
 
@@ -84,7 +88,7 @@ namespace DuplicateDetection.Test
                 .WithDifferentSizes()                
                 .Build(fileCrawler);
 
-            var duplicates = this.service.CollectCandidates("path", ComparisonMode.Size);
+            var duplicates = service.CollectCandidates("path", ComparisonMode.Size);
             duplicates.ShouldBeEmpty();
         }
 
@@ -95,12 +99,15 @@ namespace DuplicateDetection.Test
             {
                 new File("foo", 13, @"c:\foo\foo.txt"),
                 new File("foo", 13, @"c:\bar\foo.txt"),
+                new File("foo", 13, @"c:\baz\foo.txt"),
                 new File("bar", 14, @"c:\foo\bar.txt"),
                 new File("bar", 14, @"c:\bar\bar.txt"),
             });
-            var duplicates = this.service.CollectCandidates("path");
+            var duplicates = service.CollectCandidates("path");
             duplicates.Count().ShouldBe(2);
-        }
+
+            // todo: check for filepaths
+        }        
 
         private class FileCrawlerMockBuilder
         {
@@ -142,5 +149,29 @@ namespace DuplicateDetection.Test
                 }); ;
             }
         }
+
+        #endregion
+
+        #region VerifyCandidates
+        [Fact]
+        public void ShouldVerfiyCandidates()
+        {
+            var firstFilePath = "foo.txt";
+            var secondFilePath = "bar.txt";
+            var hash = new byte[] { 0x00 };
+
+            fileHashService.CalculateHash(firstFilePath).Returns(hash);
+            fileHashService.CalculateHash(secondFilePath).Returns(hash);
+
+            var candiates = Substitute.For<IDuplicateFile>();
+            candiates.FilePaths.Returns(new List<string> { firstFilePath, secondFilePath });
+
+            var files = service.VerifyCandiates(new List<IDuplicateFile> { candiates });
+
+            files.Count().ShouldBe(1);
+            files.Single().FilePaths.ShouldContain(firstFilePath);
+            files.Single().FilePaths.ShouldContain(secondFilePath);
+        }
+        #endregion
     }
 }

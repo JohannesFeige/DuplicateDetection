@@ -20,9 +20,9 @@ namespace DuplicateDetection.Test
         [Fact]
         public void ShouldCrawlFiles()
         {
-            var directoryPath = this.CreateDirectory("foo.txt");
+            var directoryPath = CreateDirectory("foo.txt");
 
-            var files = this.fileCrawler.CrawlFiles(directoryPath);
+            var files = fileCrawler.CrawlFiles(directoryPath);
 
             files.Count().ShouldBe(1);
         }
@@ -30,9 +30,9 @@ namespace DuplicateDetection.Test
         [Fact]
         public void ShouldCrawlRecursively()
         {
-            var directoryPath = this.CreateDirectory("foo/foo.txt");
+            var directoryPath = CreateDirectory("foo/foo.txt");
 
-            var files = this.fileCrawler.CrawlFiles(directoryPath);
+            var files = fileCrawler.CrawlFiles(directoryPath);
 
             files.Count().ShouldBe(1);
         }
@@ -40,9 +40,9 @@ namespace DuplicateDetection.Test
         [Fact]
         public void ShouldCrawlRecursivelyWithDeepNesting()
         {
-            var directoryPath = this.CreateDirectory("foo/foo/foo.txt", "foo/foo/bar.txt", "bar.txt");
+            var directoryPath = CreateDirectory("foo/foo/foo.txt", "foo/foo/bar.txt", "bar.txt");
 
-            var files = this.fileCrawler.CrawlFiles(directoryPath);
+            var files = fileCrawler.CrawlFiles(directoryPath);
 
             files.Count().ShouldBe(3);
         }

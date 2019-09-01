@@ -20,7 +20,7 @@ namespace DuplicateDetection
             var files = new List<File>();
             foreach(var childDirectory in directory.GetDirectories())
             {
-                files.AddRange(this.CrawlFilesImpl(childDirectory));
+                files.AddRange(CrawlFilesImpl(childDirectory));
             }
 
             files.AddRange(directory.GetFiles().Select(x => new File(x.Name, x.Length, x.FullName)));
