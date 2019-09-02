@@ -10,11 +10,11 @@ namespace DuplicateDetection.Test
     public class FileCrawlerTest : IDisposable
     {
         private readonly IFileCrawler fileCrawler = new FileCrawler();
-        private string directoryPath;
+        private string createdDirectoryPath;
 
         public void Dispose()
         {
-            Directory.Delete(directoryPath, true);
+            Directory.Delete(createdDirectoryPath, true);
         }
 
         [Fact]
@@ -49,7 +49,7 @@ namespace DuplicateDetection.Test
 
         private string CreateDirectory(params string[] filePaths)
         {
-            var path = directoryPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            var path = createdDirectoryPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             foreach(var filePath in filePaths)
             {
                 var fileInfo = new FileInfo(Path.Combine(path, filePath));

@@ -29,8 +29,6 @@ namespace DuplicateDetection.Test
 
             var duplicates = service.CollectCandidates("path");
             duplicates.Count().ShouldBe(1);
-
-            //todo: check for file paths
         }
 
         [Fact]
@@ -103,11 +101,13 @@ namespace DuplicateDetection.Test
                 new File("bar", 14, @"c:\foo\bar.txt"),
                 new File("bar", 14, @"c:\bar\bar.txt"),
             });
-            var duplicates = service.CollectCandidates("path");
-            duplicates.Count().ShouldBe(2);
 
-            // todo: check for filepaths
-        }        
+            var duplicates = service.CollectCandidates("path").ToList();
+
+            duplicates.Count.ShouldBe(2);
+            duplicates.ShouldContain(x => x.FilePaths.All(p => p.Contains("foo.txt")));
+            duplicates.ShouldContain(x => x.FilePaths.All(p => p.Contains("bar.txt")));
+        }
 
         private class FileCrawlerMockBuilder
         {
@@ -154,7 +154,7 @@ namespace DuplicateDetection.Test
 
         #region VerifyCandidates
         [Fact]
-        public void ShouldVerfiyCandidates()
+        public void ShouldVerifyCandidates()
         {
             var firstFilePath = "foo.txt";
             var secondFilePath = "bar.txt";
@@ -163,12 +163,12 @@ namespace DuplicateDetection.Test
             fileHashService.CalculateHash(firstFilePath).Returns(hash);
             fileHashService.CalculateHash(secondFilePath).Returns(hash);
 
-            var candiates = Substitute.For<IDuplicateFile>();
-            candiates.FilePaths.Returns(new List<string> { firstFilePath, secondFilePath });
+            var candidates = Substitute.For<IDuplicateFile>();
+            candidates.FilePaths.Returns(new List<string> { firstFilePath, secondFilePath });
 
-            var files = service.VerifyCandiates(new List<IDuplicateFile> { candiates });
+            var files = service.VerifyCandidates(new List<IDuplicateFile> { candidates }).ToList();
 
-            files.Count().ShouldBe(1);
+            files.Count.ShouldBe(1);
             files.Single().FilePaths.ShouldContain(firstFilePath);
             files.Single().FilePaths.ShouldContain(secondFilePath);
         }

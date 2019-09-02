@@ -44,7 +44,7 @@ namespace DuplicateDetection
                 ? left.Name == right.Name && left.Size == right.Size
                 : left.Size == right.Size;
 
-        public IEnumerable<IDuplicateFile> VerifyCandiates(IEnumerable<IDuplicateFile> candidates)
+        public IEnumerable<IDuplicateFile> VerifyCandidates(IEnumerable<IDuplicateFile> candidates)
         {
             var result = new HashSet<IDuplicateFile>(new DuplicateFileComparer());
 

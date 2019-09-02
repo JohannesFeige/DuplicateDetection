@@ -6,6 +6,6 @@ namespace DuplicateDetection.Abstractions
     {
         IEnumerable<IDuplicateFile> CollectCandidates(string path);
         IEnumerable<IDuplicateFile> CollectCandidates(string path, ComparisonMode mode);
-        IEnumerable<IDuplicateFile> VerifyCandiates(IEnumerable<IDuplicateFile> candidates);
+        IEnumerable<IDuplicateFile> VerifyCandidates(IEnumerable<IDuplicateFile> candidates);
     }
 }
