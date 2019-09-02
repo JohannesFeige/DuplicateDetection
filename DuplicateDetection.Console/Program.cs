@@ -12,7 +12,7 @@ namespace DuplicateDetection.Console
             serviceCollection
                 .AddTransient<IDuplicateDetectionService, DuplicateDetectionService>()
                 .AddTransient<IFileCrawler, FileCrawler>()
-                .AddTransient<IFileHashService>(services => new CashingFileHashService(new FileHashService()))
+                .AddTransient<IFileHashService>(services => new CachingFileHashService(new FileHashService()))
                 .AddTransient<Application>();
 
             var serviceProvider = serviceCollection.BuildServiceProvider();

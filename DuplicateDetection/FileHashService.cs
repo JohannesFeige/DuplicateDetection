@@ -5,6 +5,11 @@ namespace DuplicateDetection
 {
     public class FileHashService : IFileHashService
     {
+        /// <summary>
+        /// Calculates a MD5 hash of a file.
+        /// </summary>
+        /// <param name="path">file path</param>
+        /// <returns></returns>
         public byte[] CalculateHash(string path)
         {
             using (var md5 = MD5.Create())

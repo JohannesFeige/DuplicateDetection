@@ -1,5 +1,8 @@
 ﻿namespace DuplicateDetection.Abstractions
 {
+    /// <summary>
+    /// DTO for file information
+    /// </summary>
     public class File
     {
         public string Name { get; }

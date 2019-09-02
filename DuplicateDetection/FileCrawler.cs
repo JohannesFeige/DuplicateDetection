@@ -8,6 +8,7 @@ namespace DuplicateDetection
 {
     public class FileCrawler : IFileCrawler
     {
+        /// <inheritdoc />
         public IEnumerable<File> CrawlFiles(string directoryPath)
         {
             var directory = new DirectoryInfo(directoryPath);
@@ -15,6 +16,11 @@ namespace DuplicateDetection
             return CrawlFilesImpl(directory);
         }
 
+        /// <summary>
+        /// Crawls files recursively
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <returns></returns>
         private IEnumerable<File> CrawlFilesImpl(DirectoryInfo directory)
         {
             var files = new List<File>();

@@ -12,7 +12,7 @@ namespace DuplicateDetection.Test
     {
         private readonly IDuplicateDetectionService service = new DuplicateDetectionService(
             new FileCrawler(),
-            new CashingFileHashService(
+            new CachingFileHashService(
                 new FileHashService()
             )
         );

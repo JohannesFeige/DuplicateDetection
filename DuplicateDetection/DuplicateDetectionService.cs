@@ -15,9 +15,11 @@ namespace DuplicateDetection
             this.fileHashService = fileHashService;
         }
 
+        /// <inheritdoc />
         public IEnumerable<IDuplicateFile> CollectCandidates(string path)
             => CollectCandidates(path, ComparisonMode.SizeAndName);
 
+        /// <inheritdoc />
         public IEnumerable<IDuplicateFile> CollectCandidates(string path, ComparisonMode mode)
         {
             var result = new HashSet<IDuplicateFile>(new DuplicateFileComparer());
@@ -38,11 +40,19 @@ namespace DuplicateDetection
             return result;
         }
 
+        /// <summary>
+        /// Compares files depending on comparison mode.
+        /// </summary>
+        /// <param name="left">left file</param>
+        /// <param name="right">right file</param>
+        /// <param name="mode">comparison mode</param>
+        /// <returns></returns>
         private bool SimpleCompare(File left, File right, ComparisonMode mode)
             => mode == ComparisonMode.SizeAndName
                 ? left.Name == right.Name && left.Size == right.Size
                 : left.Size == right.Size;
 
+        /// <inheritdoc />
         public IEnumerable<IDuplicateFile> VerifyCandidates(IEnumerable<IDuplicateFile> candidates)
         {
             var result = new HashSet<IDuplicateFile>(new DuplicateFileComparer());
@@ -65,6 +75,12 @@ namespace DuplicateDetection
             return result;
         }
 
+        /// <summary>
+        /// Compares files by hash using FileHashService.
+        /// </summary>
+        /// <param name="left">left file</param>
+        /// <param name="right">right file</param>
+        /// <returns></returns>
         private bool HashCompare(string left, string right)
         {
             var leftHash = fileHashService.CalculateHash(left);
@@ -72,12 +88,15 @@ namespace DuplicateDetection
             return leftHash.SequenceEqual(rightHash);
         }
 
+        /// <inheritdoc />
         private class DuplicateFileComparer : IEqualityComparer<IDuplicateFile>
         {
+            /// <inheritdoc />
             public bool Equals(IDuplicateFile left, IDuplicateFile right)
                 => left.FilePaths.Count() == right.FilePaths.Count()
                     && left.FilePaths.All(x => right.FilePaths.Contains(x));
 
+            /// <inheritdoc />
             public int GetHashCode(IDuplicateFile obj)
                 => obj.FilePaths.Aggregate(0, (current, path) => current ^ path.GetHashCode());
         }

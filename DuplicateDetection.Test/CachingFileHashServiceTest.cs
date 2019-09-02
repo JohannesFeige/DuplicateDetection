@@ -5,14 +5,14 @@ using Xunit;
 
 namespace DuplicateDetection.Test
 {
-    public class CashingFileHashServiceTest
+    public class CachingFileHashServiceTest
     {
-        private readonly IFileHashService service;
+        private readonly CachingFileHashService service;
         private readonly IFileHashService fileHashService = Substitute.For<IFileHashService>();
 
-        public CashingFileHashServiceTest()
+        public CachingFileHashServiceTest()
         {
-            service = new CashingFileHashService(fileHashService);
+            service = new CachingFileHashService(fileHashService);
         }
 
         [Fact]
