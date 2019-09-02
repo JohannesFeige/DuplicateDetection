@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using DuplicateDetection.Abstractions;
 
@@ -20,85 +21,86 @@ namespace DuplicateDetection
             => CollectCandidates(path, ComparisonMode.SizeAndName);
 
         /// <inheritdoc />
-        public IEnumerable<IDuplicateFile> CollectCandidates(string path, ComparisonMode mode)
-        {
-            var result = new HashSet<IDuplicateFile>(new DuplicateFileComparer());
-            var files = fileCrawler.CrawlFiles(path).ToList();
-
-            foreach (var file in files)
-            {
-                var duplicates = files.Where(x => SimpleCompare(x, file, mode));
-                if (duplicates.Count() > 1)
+        public IEnumerable<IDuplicateFile> CollectCandidates(string path, ComparisonMode mode) =>
+            fileCrawler
+                .CrawlFiles(path)
+                .GroupBy(x => x, new SimpleComparer(mode))
+                .Where(grouping => grouping.Count() > 1)
+                .Select(grouping => new DuplicateFile
                 {
-                    result.Add(new DuplicateFile
-                    {
-                        FilePaths = duplicates.Select(x => x.Path)
-                    });
-                }
-            }
+                    FilePaths = grouping.Select(file => file.Path)
+                });
 
-            return result;
+        /// <inheritdoc />
+        public IEnumerable<IDuplicateFile> VerifyCandidates(IEnumerable<IDuplicateFile> candidates)
+        {
+            return candidates
+                .SelectMany(candidate => candidate.FilePaths
+                    .GroupBy(filePath => filePath, new HashComparer(fileHashService))
+                    .Where(innerGrouping => innerGrouping.Count() > 1)
+                    .Select(innerGrouping => new DuplicateFile
+                    {
+                        FilePaths = innerGrouping
+                    }));
         }
 
         /// <summary>
         /// Compares files depending on comparison mode.
         /// </summary>
-        /// <param name="left">left file</param>
-        /// <param name="right">right file</param>
-        /// <param name="mode">comparison mode</param>
-        /// <returns></returns>
-        private bool SimpleCompare(File left, File right, ComparisonMode mode)
-            => mode == ComparisonMode.SizeAndName
-                ? left.Name == right.Name && left.Size == right.Size
-                : left.Size == right.Size;
-
-        /// <inheritdoc />
-        public IEnumerable<IDuplicateFile> VerifyCandidates(IEnumerable<IDuplicateFile> candidates)
+        private class SimpleComparer : IEqualityComparer<File>
         {
-            var result = new HashSet<IDuplicateFile>(new DuplicateFileComparer());
+            private readonly ComparisonMode mode;
 
-            foreach (var candidate in candidates)
+            public SimpleComparer(ComparisonMode mode)
             {
-                foreach (var filePath in candidate.FilePaths)
-                {
-                    var duplicatePaths = candidate.FilePaths.Where(x => HashCompare(x, filePath));
-                    if (duplicatePaths.Count() > 1)
-                    {
-                        result.Add(new DuplicateFile
-                        {
-                            FilePaths = duplicatePaths
-                        });
-                    }
-                }
+                this.mode = mode;
             }
 
-            return result;
+            public bool Equals(File left, File right)
+                => mode == ComparisonMode.SizeAndName
+                    ? left.Name == right.Name && left.Size == right.Size
+                    : left.Size == right.Size;
+
+            public int GetHashCode(File obj)
+            {
+                var hash = obj.Size.GetHashCode();
+
+                if (mode == ComparisonMode.SizeAndName)
+                {
+                    hash ^= obj.Name.GetHashCode();
+                }
+
+                return hash;
+            }
         }
 
         /// <summary>
         /// Compares files by hash using FileHashService.
         /// </summary>
-        /// <param name="left">left file</param>
-        /// <param name="right">right file</param>
-        /// <returns></returns>
-        private bool HashCompare(string left, string right)
+        private class HashComparer : IEqualityComparer<string>
         {
-            var leftHash = fileHashService.CalculateHash(left);
-            var rightHash = fileHashService.CalculateHash(right);
-            return leftHash.SequenceEqual(rightHash);
-        }
+            private readonly IFileHashService fileHashService;
 
-        /// <inheritdoc />
-        private class DuplicateFileComparer : IEqualityComparer<IDuplicateFile>
-        {
-            /// <inheritdoc />
-            public bool Equals(IDuplicateFile left, IDuplicateFile right)
-                => left.FilePaths.Count() == right.FilePaths.Count()
-                    && left.FilePaths.All(x => right.FilePaths.Contains(x));
+            public HashComparer(IFileHashService fileHashService)
+            {
+                this.fileHashService = fileHashService;
+            }
 
-            /// <inheritdoc />
-            public int GetHashCode(IDuplicateFile obj)
-                => obj.FilePaths.Aggregate(0, (current, path) => current ^ path.GetHashCode());
+            public bool Equals(string left, string right)
+            {
+                var leftHash = fileHashService.CalculateHash(left);
+                var rightHash = fileHashService.CalculateHash(right);
+                return leftHash.SequenceEqual(rightHash);
+            }
+
+            public int GetHashCode(string path)
+            {
+                var rawHash = fileHashService.CalculateHash(path);
+                // fileHashService return byte[1] for empty files:
+                return rawHash.Length >= 4
+                    ? BitConverter.ToInt32(rawHash, 0)
+                    : 0;
+            }
         }
     }
 }
