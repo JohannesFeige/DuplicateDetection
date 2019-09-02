@@ -105,8 +105,8 @@ namespace DuplicateDetection.Test
             var duplicates = service.CollectCandidates("path").ToList();
 
             duplicates.Count.ShouldBe(2);
-            duplicates.ShouldContain(x => x.FilePaths.All(p => p.Contains("foo.txt")));
-            duplicates.ShouldContain(x => x.FilePaths.All(p => p.Contains("bar.txt")));
+            duplicates.ShouldContain(x => x.FilePaths.Count() == 3 && x.FilePaths.All(p => p.EndsWith("foo.txt")));
+            duplicates.ShouldContain(x => x.FilePaths.Count() == 2 && x.FilePaths.All(p => p.EndsWith("bar.txt")));
         }
 
         private class FileCrawlerMockBuilder

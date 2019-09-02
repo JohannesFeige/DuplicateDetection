@@ -1,13 +1,20 @@
-﻿using DuplicateDetection.Abstractions;
+﻿using System;
+using DuplicateDetection.Abstractions;
 using Shouldly;
 using System.IO;
 using Xunit;
 
 namespace DuplicateDetection.Test
 {
-    public class FileHashServiceTest
+    public class FileHashServiceTest : IDisposable
     {
         private readonly IFileHashService fileHashService = new FileHashService();
+        private string createdDirectoryPath;
+
+        public void Dispose()
+        {
+            Directory.Delete(createdDirectoryPath, true);
+        }
 
         [Fact]
         public void ShouldGetHash()
@@ -21,8 +28,8 @@ namespace DuplicateDetection.Test
 
         private string CreateFile(string filePath)
         {
-            var path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());            
-            var fileInfo = new FileInfo(Path.Combine(path, filePath));
+            createdDirectoryPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());            
+            var fileInfo = new FileInfo(Path.Combine(createdDirectoryPath, filePath));
             fileInfo.Directory.Create();
 
             using (var writer = new StreamWriter(fileInfo.Create()))

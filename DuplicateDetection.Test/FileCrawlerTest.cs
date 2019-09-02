@@ -49,14 +49,14 @@ namespace DuplicateDetection.Test
 
         private string CreateDirectory(params string[] filePaths)
         {
-            var path = createdDirectoryPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            createdDirectoryPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             foreach(var filePath in filePaths)
             {
-                var fileInfo = new FileInfo(Path.Combine(path, filePath));
+                var fileInfo = new FileInfo(Path.Combine(createdDirectoryPath, filePath));
                 fileInfo.Directory.Create();
                 fileInfo.Create().Close();
             }
-            return path;
+            return createdDirectoryPath;
         }
     }
 }
