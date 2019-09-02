@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using DuplicateDetection.Abstractions;
+﻿using DuplicateDetection.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DuplicateDetection.Console
