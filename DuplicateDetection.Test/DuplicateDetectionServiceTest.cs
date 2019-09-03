@@ -159,7 +159,7 @@ namespace DuplicateDetection.Test
         {
             var firstFilePath = "foo.txt";
             var secondFilePath = "bar.txt";
-            var hash = new byte[] { 0x00 };
+            var hash = new byte[] { 0x00, 0x00, 0x00, 0x00 };
 
             fileHashService.CalculateHash(firstFilePath).Returns(hash);
             fileHashService.CalculateHash(secondFilePath).Returns(hash);

@@ -95,13 +95,7 @@ namespace DuplicateDetection
             }
 
             public int GetHashCode(string path)
-            {
-                var rawHash = fileHashService.CalculateHash(path);
-                // fileHashService return byte[1] for empty files:
-                return rawHash.Length >= 4
-                    ? BitConverter.ToInt32(rawHash, 0)
-                    : 0;
-            }
+                => BitConverter.ToInt32(fileHashService.CalculateHash(path), 0);
         }
     }
 }
