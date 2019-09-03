@@ -59,8 +59,8 @@ namespace DuplicateDetection
 
             public bool Equals(File left, File right)
                 => mode == ComparisonMode.SizeAndName
-                    ? left.Name == right.Name && left.Size == right.Size
-                    : left.Size == right.Size;
+                    ? left?.Name == right?.Name && left?.Size == right?.Size
+                    : left?.Size == right?.Size;
 
             public int GetHashCode(File obj)
             {

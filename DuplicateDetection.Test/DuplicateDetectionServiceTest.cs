@@ -147,7 +147,7 @@ namespace DuplicateDetection.Test
                 {
                     new File(file1, size1, $@"c:\{file1}"),
                     new File(file2, size2, $@"c:\{file2}"),
-                }); ;
+                });
             }
         }
 
