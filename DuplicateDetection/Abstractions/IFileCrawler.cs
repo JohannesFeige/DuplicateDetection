@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using DuplicateDetection.Models;
 
 namespace DuplicateDetection.Abstractions
 {

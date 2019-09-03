@@ -1,4 +1,4 @@
-﻿namespace DuplicateDetection.Abstractions
+﻿namespace DuplicateDetection.Models
 {
     /// <summary>
     /// DTO for file information

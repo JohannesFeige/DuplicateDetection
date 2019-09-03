@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DuplicateDetection.Abstractions;
+using DuplicateDetection.Models;
 
 namespace DuplicateDetection
 {

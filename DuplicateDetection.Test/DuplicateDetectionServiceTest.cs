@@ -3,6 +3,7 @@ using NSubstitute;
 using Shouldly;
 using System.Collections.Generic;
 using System.Linq;
+using DuplicateDetection.Models;
 using Xunit;
 
 namespace DuplicateDetection.Test

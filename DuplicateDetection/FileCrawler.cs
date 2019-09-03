@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using File = DuplicateDetection.Abstractions.File;
+using File = DuplicateDetection.Models.File;
 
 namespace DuplicateDetection
 {

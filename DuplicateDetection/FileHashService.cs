@@ -13,9 +13,11 @@ namespace DuplicateDetection
         public byte[] CalculateHash(string path)
         {
             using (var md5 = MD5.Create())
-            using (var stream = System.IO.File.OpenRead(path))
             {
-                return md5.ComputeHash(stream);
+                using (var stream = System.IO.File.OpenRead(path))
+                {
+                    return md5.ComputeHash(stream);
+                }
             }
         }
     }
